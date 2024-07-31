@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="HTTPS_Listener_config" doc:name="HTTP Listener config" doc:id="d58db81b-5e4d-42b9-916d-22bd901b5aec" >
+		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="8043" />
+	</http:listener-config>
+	<global-property doc:name="Global Property" doc:id="562dd56c-0ccd-4ab7-b5a6-1bb40d85d508" name="maxDays" value="5" doc:description="Sets the maximum days to calculete with the high volume API."/>
+	<http:request-config name="BigCalc_Request_configuration" doc:name="HTTP Request configuration" doc:id="8d9ee5ca-77d7-4652-bce2-73d541664603" >
+		<http:request-connection host="${big-calc-host}" port="${big-calc-port}" />
+	</http:request-config>
+	<http:request-config name="FastCalc_Request_configuration" doc:name="HTTP Request configuration" doc:id="3c561dbb-6013-4814-bd54-771b7a5ab020" >
+		<http:request-connection host="${fast-calc-host}" port="${fast-calc-port}" />
+	</http:request-config>
+	<global-property doc:name="Global Property" doc:id="1d666933-13a4-401e-b658-09c965d1ea03" doc:description="Environment selection for the propeties file." name="env" value="test" />
+	<api-gateway:autodiscovery apiId="123454321" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="868a9fdd-3870-4682-8915-9a71d48d83ff" flowRef="api-routerFlow" />
+	<flow name="api-routerFlow" doc:id="31a863b9-b866-4124-b3ae-beea82dbe9b0" doc:description="This is just an example.">
+		<http:listener doc:name="Listener" doc:id="f212627b-6d13-4f13-9f30-4676f163970d" config-ref="HTTPS_Listener_config" path="/">
+			<http:response >
+				<http:headers ><![CDATA[#[attributes.headers]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<set-variable value="3" doc:name="Set Calculation Days" doc:id="e4ef0af3-b244-41c6-a17c-4e886e7e340f" variableName="calcDays"/>
+		<set-variable value="${maxDays}" doc:name="Set Max Days" doc:id="78ba0590-b582-4bf5-a0d0-8eb5b708ebe2" variableName="maxDays"/>
+		<choice doc:name="Choice" doc:id="d516fe77-f1a2-43a1-849c-faf86109b7e6" >
+			<when expression='#[vars.calcDays &gt; vars.maxDays]'>
+				<http:request method="GET" doc:name="BigCalc_Request" doc:id="c353a5ef-ec3a-4aac-a988-1d2d71905100" config-ref="BigCalc_Request_configuration" path="${big-calc-path}">
+					<http:headers ><![CDATA[#[attributes.headers]]]></http:headers>
+				</http:request>
+			</when>
+			<otherwise >
+				<http:request method="GET" doc:name="FastCalc_Request" doc:id="ee517315-af5a-40ac-9aa6-677079bae23b" config-ref="FastCalc_Request_configuration" path="${fast-calc-path}">
+					<http:headers ><![CDATA[#[attributes.headers]]]></http:headers>
+				</http:request>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

@@ -1,0 +1,6 @@
+big-calc-path: "/big-calc"
+big-calc-host: "localhost"
+big-clac-port: 8091
+fast-calc-path: "/fast-calc"
+fast-calc-host: "localhost"
+fast-calc-port: 8092

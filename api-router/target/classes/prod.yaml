@@ -1,0 +1,6 @@
+big-calc-path: "/big-calc"
+big-calc-host: "api.myco.com"
+big-clac-port: 443
+fast-calc-path: "/fast-calc"
+fast-calc-host: "api.myco.com"
+fast-calc-port: 443
